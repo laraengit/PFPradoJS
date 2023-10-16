@@ -164,8 +164,10 @@ function salir(nombre){
 
 //DOM
 //CAPTURA DOM
+//Servicios
 let containerServicios = document.getElementById("servicios")
 let filtroServicios = document.getElementById("selectFiltrar")
+//Herramientas
 let btnPresion = document.getElementById("btnPresion")
 let presionSis = document.getElementById("idPrS")
 let presionDias = document.getElementById("idPrD")
@@ -217,44 +219,62 @@ function mostrarCatalogoDOM(array){
         </div> `
 
         containerServicios.append(servicioNuevo)
-
+        //RELACION CON TURNO
+        //Acá armo el evento click del botón para agregar el servicio al pedido del turno (análogo de carrito)
         let agregarBtn = document.getElementById(`btnAgregar${serv.servicio}`)
         console.log(agregarBtn)
         agregarBtn.addEventListener("click", () => {
-            arrServSeleccionados.push(serv)
-            mostrarServSelecc(arrServSeleccionados)
-            let total = arrServSeleccionados.reduce((acc,elem) => acc + elem.precio, 0)
-            precioServ.innerHTML = `Total: ${total}`
+            //Primero reviso si ya está seleccionado
+            let yaSeleccionoServ = arrServSeleccionados.find((elem)=>(elem.servicio === serv.servicio)&&(elem.especialidad === serv.especialidad))
+            //Si no fue seleccionado todavía, entonces sí lo agrego al array de serv seleccionados y actualizo el visor de seleccionados
+            if (!yaSeleccionoServ){
+                arrServSeleccionados.push(serv)
+                //Guardo en local storage
+                localStorage.setItem("servSelecc", JSON.stringify(arrServSeleccionados))
+                mostrarServSelecc(arrServSeleccionados)
+                /* let total = arrServSeleccionados.reduce((acc,elem) => acc + elem.precio, 0)
+                precioServ.innerHTML = `Total: ${total}` */
+                
+            }else{
+                alert("El servicio ya fue seleccionado")
+            }
+            
 
         })
     }
 }
 
 function mostrarServSelecc(array){
-    //resetear el container
-    servAgregado.innerHTML = ""
-    //for of: para recorrer un array posición a posición
-    for(let serv of array){
-        
-        let servicioNuevo= document.createElement("div")
-        servicioNuevo.className = ""
-        servicioNuevo.innerHTML = `
-            <div id="${serv.id}" class="card" style="width: 100%;">
-                
+
+    if(array.length != 0){
+        //Reseteo lo que ya estaba
+        servAgregado.innerHTML = ""
+        //Recorro todos los elementos (servicios seleccionados) de mi array
+        for(let serv of array){
+            let servicioNuevo= document.createElement("div")
+            //Solo me interesa mostrar el servicio, la especialidad y el precio: el resto de la info ya la tiene en catalogo
+            servicioNuevo.className = ""
+            servicioNuevo.innerHTML = `
+                <div id="${serv.id}" class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <h4 class="card-title">${serv.servicio}</h4>
+                        <p>${serv.especialidad}</p>
+                        <p>Precio: $ ${serv.precio}</p>
+                    </div>
                     
-                <div class="card-body">
-                    <h4 class="card-title">${serv.servicio}</h4>
-                    <p>Precio: $ ${serv.precio}</p>
-                </div>
-                
-        </div> `
+            </div> `
+            servAgregado.append(servicioNuevo)
+        }
+        let total = array.reduce((acc,elem) => acc + elem.precio, 0)
+        precioServ.innerHTML = `Total: ${total}`
 
-        servAgregado.append(servicioNuevo)
-
+    }else{
+        servAgregado.innerHTML = "Todavía no seleccionaste servicios"
     }
-
+    
 }
 
+//EVENTOS
 //Filtrar por especialidad
 filtroServicios.addEventListener("change", () => {
     // console.log("Detecto cambio")
@@ -263,8 +283,8 @@ filtroServicios.addEventListener("change", () => {
     mostrarCatalogoDOM(servFiltrados)
     
 })
-
 //Turnos
+//Paciente ya ingresado
 btnIngresado.addEventListener("click", () => {
     infoPaciente.innerHTML = `<form action="">
     <label for="DNI">DNI: </label>
@@ -289,7 +309,7 @@ btnIngresado.addEventListener("click", () => {
      
     }) */
 })
-
+//Paciente nuevo
 btnNuevo.addEventListener("click", () => {
     infoPaciente.innerHTML = `<form action="">
     <label for="Nombre">Nombre: </label>
@@ -332,8 +352,6 @@ btnNuevo.addEventListener("click", () => {
      
 })
 
-
-
 //Herramientas
 //Presion
 btnPresion.addEventListener("click", () => {
@@ -364,16 +382,13 @@ btnimc.addEventListener("click", () => {
      
 })
 
-
-
 //DARKMODE
+//Tomada de la clase y modificada al principio
 let btnToggle = document.getElementById("btnToggle")
 console.log(btnToggle)
-if(localStorage.getItem("modoOscuro")){
-    //si existe la calve en el storage
 
-}else{
-    //no existe la clave en el storage
+if(!(localStorage.getItem("modoOscuro"))){
+    //Agregué el not para evitar un if con un caso vacío
     console.log("SETEAMOS POR PRIMERA VEZ")
     localStorage.setItem("modoOscuro", false)
 }
@@ -383,16 +398,16 @@ if(JSON.parse(localStorage.getItem("modoOscuro")) == true){
     btnToggle.innerText = "Modo Claro"
 }
 
-//funcionamiento del botón
+//Evento darkmode
 btnToggle.addEventListener("click", () => {
     document.body.classList.toggle("darkMode")
     if(JSON.parse(localStorage.getItem("modoOscuro")) == false){
-        //ACA VOY A MODO OSCURO
-        btnToggle.innerText = "Modo claro"
+        //Va a cambiar a modo oscuro, el boton se cambia a "modo claro" porque ahora es la alternativa
+        btnToggle.innerText = "Modo Claro"
         localStorage.setItem("modoOscuro", true)
     }
     else if(JSON.parse(localStorage.getItem("modoOscuro")) == true){
-        //VOY A MODO CLARO
+        //Va a cambiar a modo claro nuevamente, ahora volvemos a poner "modo oscuro" porque es la alternativa
         btnToggle.innerText = "Modo Oscuro"
         localStorage.setItem("modoOscuro", false)
     }
@@ -423,10 +438,9 @@ function Servicio(servicio,precio,descrip, especialidad,imagen) {
 
 }
 //Datos del sistema
-
 const prepagasAceptadas = ["Swiss Medical","OSDE","Galeno","Medicus"]
 const especialidades = ["Ginecología","Oftalmología","Cardiología","Clínica","Dermatología"]
-
+//Servicios
 const consulta = new Servicio("Consulta",7000,"Consulta con el especialista. Para chequeos de rutina o para consultar por sítnomas o cuadros específicos. ","Todas","consulta.jpg")
 const revision = new Servicio("Revisión de estudios",5000,"Consulta para revisar estudios solicitados previamente y dar una devolución con un plan de acción","Todas","revisionEstudios.jpg")
 const  pap = new Servicio("PAP",2000,"Papanicolau: para detectar cambios en las células del cuello uterino. Incluye la toma de muestras y el laboratorio. Lo reasliza un/a ginecólogo/a","Ginecología","pap.jpg")
@@ -434,18 +448,21 @@ const ecg = new Servicio("ECG",2000,"Electrocardiograma(ECG): Se estudia la acti
 const ergometria = new Servicio("Ergometría",5000,"Es una prueba de ejercicio físico donde se registra la actividad del corazón con electrodos bajo esfuerzo. Puede hacerse en bicicleta o en cinta. En nuestro consultorio se realiza en cinta.","Cardiología","ergometria.jpg")
 const peeling = new Servicio("Peeling",10000,"Peeling: Tratamiento dermatológico que busca renovar la dermis a partir de una solución química que exfolia las capas externas de la piel.","Dermatología","peeling.jpeg")
 const fondoOjos = new Servicio("Fondo de ojos",2000,"Permite observar la parte posterior del interior del ojo. Para ello se usan gotas que dilatan las pupilas y cuyo efecto dura unas horas. Se usa para prevenir o hacer el seguimiento de enfermedades.","Oftalmología","fondoOjos.jpg")
-
+//Todos los servicios
 const serviciosDisponibles = [consulta,revision, pap, ecg, peeling, fondoOjos, ergometria]
 
-const arrServSeleccionados = []
+//Hago el caso de primera vez o no para los servicios seleccionados, dado que guardo la selección del usuario hasta que envía la consulta
+let arrServSeleccionados = []
+if(localStorage.getItem("servSelecc")){
+    //solo entro en el caso de que se haya guardado (quedo la accion de envio de consulta inconclusa)
+    for(let serv of JSON.parse(localStorage.getItem("servSelecc"))){
+        let servClase = new Servicio (serv.servicio, serv.precio, serv.descripcion, serv.especialidad, serv.imagen)
+        arrServSeleccionados.push(servClase)
+    }
+
+}
 
 
-//Diálogo
-/* let nombre
-do{
-    nombre = prompt("Bienvenido al sitio web del consultorio! Ingresá tu nombre para comenzar: ")
-
-}while(nombre === null)
-menuPrincipal(nombre)
- */
+//Interacción semilla
 mostrarCatalogoDOM(serviciosDisponibles)
+mostrarServSelecc(arrServSeleccionados)
