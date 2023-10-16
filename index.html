@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultorio BA | Bienvenido</title>
+    <link rel="stylesheet" href="./sass/main.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
+    <!-- Boostrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  
+</head>
+<body class="estilosBody">
+    <div id= "contenedor" class="gridBody gridBodyInicio  ">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary .gridHeader">
+            <div class="container-fluid d-flex">
+              <a class="navbar-brand" href="#">Consultorios BA</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse d-flex" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link"  href="#encabezado">Inicio</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#servicios">Servicios</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#turno">Pedir turno</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#herramientas">Herramientas</a>
+                  </li>
+                  
+                  <button id="btnToggle" class="btn btn-dark mx-3">Modo oscuro</button>  
+                </ul>
+              </div>
+            </div>
+          </nav>
+        
+        <div id="encabezado" class="secc gridMain">
+            <h1>Consultorios BA</h1>
+            <h2>Cuidando tu salud</h2>
+        </div>
+    
+        <div  class=" secc tienda gridServ">
+            <div class="titularServicios">
+                <h3 class="titularServ">Nuestros Servicios</h3>
+                <div class = "selectFiltradoEstilo">
+                    <ul>
+                        <label for="selectFiltrar">Filtrar por:</label>
+                        <select id="selectFiltrar" class="form-select form-select-sm" aria-label=".form-select-sm example" def>
+                        <option selected value = "6">Todas</option>
+                        <option value="1">Ginecología</option>
+                        <option value="2">Oftalmología</option>
+                        <option value="3">Cardiología</option>
+                        <option value="4">Clínica</option>
+                        <option value="5">Dermatología</option>
+                        
+                        </select>
+                    </ul>
+                </div>
+
+            </div>
+            
+            
+            <div id="servicios" class="row">
+            </div>
+            
+        </div>
+    
+        <div id="turno" class="secc datos gridTurnos">
+            <h3>Pedí tu turno</h3>
+            <div class="flexR">
+                <div class="seccPaciente">
+                    <div class="botonesTurno">
+                        <button id="btnIngresado" class="btn btn-success mx-3">Ya soy paciente</button>
+                        <button id="btnNuevo" class="btn btn-info mx-3">Soy nuevo paciente</button>  
+                    </div>
+                    <div id="divInfoPaciente" class="infoPaciente">
+
+                    </div>
+    
+                </div>
+                
+                <div class = "servPaciente">
+                    <h4>Servicios seleccionados</h4>
+                    <div id="servAgregados"></div>
+                    <div id = "precioServ"></div>
+    
+                </div>
+
+            </div>
+            <!-- <div id = divSolTurno>
+                
+            </div> -->
+            
+        </div>
+    
+        <div id="herramientas" class="secc gridHerr">
+            <h3>Herramientas para cuidar tu salud</h3>
+            <div class="herr">
+                <div id = "presion" class="herrSub">
+                    <h4>Revisá tus valores de presión</h4>
+                    <p>Ingrá los valores que te tomaste y te decimos si están bien. Recordá que siempre se requiere un chequeo completo</p>
+
+                    <form action="">
+                        <label for="presionS">Presión sistólica</label>
+                        <input type="text" name="presionS" id="idPrS">
+                        <label for="presionD">Presión diastólica</label>
+                        <input type="text" name="presionD" id="idPrD">
+                    </form>
+    
+                    <button id="btnPresion" class="btn btn-danger mx-3">Chequear presión</button>
+
+                    <div id="resultPresion">
+                        
+                    </div>
+    
+                </div>
+    
+                <div  class= "herrSub">
+                    <h4>Calculá tu IMC</h4>
+                    <p>Calculá tu índice de masa corporal (IMC). Con tu peso y altura podemos estimar la masa en tu cuerpo. En principio un imc saludable está entre 20 y 25, pero no es definitivo!</p>
+                    <form action="">
+                        <label for="peso">Peso</label>
+                        <input type="text" name="peso" id="idPeso">
+                        <label for="altura">Altura</label>
+                        <input type="text" name="presionD" id="idAltura">
+                    </form>
+                    <button id="btnIMC" class="btn btn-secondary mx-3">Calcular IMC</button>
+                    <div id="resultIMC"></div>
+                </div>
+
+            </div>
+            
+        </div>
+
+        
+    
+        <footer id="footer" class="pie gridFooter">
+            <div class=" logo">
+                Consultorios BA
+            </div>
+            <div class=" column slogan">
+                <a href="#encabezado">Volver Arriba</a>
+            </div>
+            <div class=" column copyright">
+                &copy; 2023 Lara Prado
+            </div>
+        </footer>
+
+      </div>
+
+      
+    
+
+
+
+
+
+    <!-- JavaScript -->
+    <!-- Boostrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Propio -->
+    <script src="./interact.js"></script>
+    
+</body>
+</html>
