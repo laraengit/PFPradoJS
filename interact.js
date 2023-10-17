@@ -103,6 +103,7 @@ function pedirTurno(nombre){
     if (especialidad==6){
         //Caso no atienden esa especialidad: le avisamos y lo redirigimos
         alert("Lo lamentamos, solo contamos con las especialidades listadas")
+        
         noespec = 1
     }
     else{
@@ -181,8 +182,11 @@ let btnIngresado = document.getElementById("btnIngresado")
 let btnNuevo = document.getElementById("btnNuevo")
 let infoPaciente = document.getElementById("divInfoPaciente")
 let servAgregado = document.getElementById("servAgregados")
+let botonSelecc = document.getElementById("botonSelecc")
 let precioServ = document.getElementById("precioServ")
 let divSolTurno = document.getElementById("divSolTurno")
+let ultConsulta = document.getElementById("ultConsulta")
+let btnEnviarConsulta = document.getElementById("btnEnviarConsulta")
 
 
 
@@ -229,6 +233,13 @@ function mostrarCatalogoDOM(array){
             //Si no fue seleccionado todavía, entonces sí lo agrego al array de serv seleccionados y actualizo el visor de seleccionados
             if (!yaSeleccionoServ){
                 arrServSeleccionados.push(serv)
+                //Aviso que se agrego a los seleccionados
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Servicio seleccionado',
+                    text: 'Ya agregamos el servicio al apartado de consultas',
+                   /*  footer: '<a href="">Why do I have this issue?</a>' */
+                  })
                 //Guardo en local storage
                 localStorage.setItem("servSelecc", JSON.stringify(arrServSeleccionados))
                 mostrarServSelecc(arrServSeleccionados)
@@ -236,7 +247,13 @@ function mostrarCatalogoDOM(array){
                 precioServ.innerHTML = `Total: ${total}` */
                 
             }else{
-                alert("El servicio ya fue seleccionado")
+                //Aviso que no se puede agregar dos veces lo mismo
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'El servicio ya está seleccionado',
+                    text: 'No se puede seleccionar más de una vez el mismo servicio',
+                   /*  footer: '<a href="">Why do I have this issue?</a>' */
+                  })
             }
             
 
@@ -267,14 +284,32 @@ function mostrarServSelecc(array){
         }
         let total = array.reduce((acc,elem) => acc + elem.precio, 0)
         precioServ.innerHTML = `Total: ${total}`
+        botonSelecc.innerHTML = `<button id="btnBorrarSelecc" class="btn btn-secondary mx-2 bottom">Borrar selección</button>`
+        //Defino evento para borrar los servicios seleccionados con el boton de borrado
+        btnBorrarSelecc.addEventListener("click", () => {
+            localStorage.removeItem('servSelecc');
+            arrServSeleccionados = []
+            servAgregado.innerHTML = "Todavía no seleccionaste servicios"
+            precioServ.innerHTML = ""
+            botonSelecc.innerHTML = ""
 
+        
+        })
     }else{
         servAgregado.innerHTML = "Todavía no seleccionaste servicios"
     }
     
 }
-
-//EVENTOS
+function tiempoConsultaFunc(timeUlt){
+    const Interval = luxon.Interval; 
+    let tiempoConsulta
+    let ahora
+    setInterval(()=>{
+        ahora = DateTime.now()
+        tiempoConsulta = Interval.fromDateTimes(timeUlt,ahora);
+        console.log(tiempoConsulta)
+        ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
+    },10000)}
 //Filtrar por especialidad
 filtroServicios.addEventListener("change", () => {
     // console.log("Detecto cambio")
@@ -412,6 +447,29 @@ btnToggle.addEventListener("click", () => {
         localStorage.setItem("modoOscuro", false)
     }
 })
+//Luxon: lo voy a usar para 2 cosas - Calcular edad y definir cuando mandaste una consulta
+const DateTime = luxon.DateTime
+ 
+//Envío consulta
+btnEnviarConsulta.addEventListener("click",( )=>{
+    let timeUltConsulta = DateTime.now()
+    /* tiempoConsultaFunc(DateTime.now()) */
+    localStorage.setItem("ultConsultaTiempo", JSON.stringify(timeUltConsulta))
+    const Interval = luxon.Interval; 
+    let tiempoConsulta
+    let ahora
+    ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace 0 segundos`
+    setInterval(()=>{
+        ahora = DateTime.now()
+        tiempoConsulta = Interval.fromDateTimes(timeUltConsulta,ahora);
+        console.log(tiempoConsulta)
+        ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
+    },10000)})
+
+
+
+
+
 
 //Constructores y clases
 class PacienteNuevo{
@@ -466,3 +524,6 @@ if(localStorage.getItem("servSelecc")){
 //Interacción semilla
 mostrarCatalogoDOM(serviciosDisponibles)
 mostrarServSelecc(arrServSeleccionados)
+/* if(localStorage.getItem("ultConsultaTiempo")){
+    tiempoConsultaFunc(JSON.parse(localStorage.getItem("ultConsultaTiempo")))
+} */
