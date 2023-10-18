@@ -45,8 +45,12 @@
                 flex-direction: column;
             };
         }
-        #presion{
-            border-right: thin solid #243d6a;
+        #presion,#imc{
+            /* border-right: thin solid #243d6a; */
+            border-radius: 10px;
+            border: solid rgb(219, 216, 216);
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.784);
         }
     }
     :nth-child(n){
@@ -97,6 +101,9 @@
 .darkMode{
     color:white;
     background-color: rgb(0, 30, 67);
+    #presion,#imc{
+        color:rgb(57, 57, 57)
+    }
 }
     
 /* Grid */

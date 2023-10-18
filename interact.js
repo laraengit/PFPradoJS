@@ -154,11 +154,7 @@ function mostrarCatalogoDOM(array){
                 
             }else{
                 //Aviso que no se puede agregar dos veces lo mismo
-                /* Swal.fire({
-                    icon: 'warning',
-                    title: 'El servicio ya está seleccionado',
-                    text: 'No se puede seleccionar más de una vez el mismo servicio',
-                  }) */
+                
                   Toastify({
                     text: `El servicio ${serv.servicio} ya estaba seleccionado`,
                     duration: 4500,
@@ -186,25 +182,58 @@ function mostrarServSelecc(array){
         for(let serv of array){
             let servicioNuevo= document.createElement("div")
             //Solo me interesa mostrar el servicio, la especialidad y el precio: el resto de la info ya la tiene en catalogo
-            servicioNuevo.className = ""
-            servicioNuevo.innerHTML = `
-                <div id="${serv.id}" class="card" style="width: 100%;">
-                    <div class="card-body">
-                        <h4 class="card-title">${serv.servicio}</h4>
-                        <p>${serv.especialidad}</p>
-                        <p>Precio: $ ${serv.precio}</p>
-                    </div>
-                    
-            </div> `
-            servAgregado.append(servicioNuevo)
-        }
-        let total = array.reduce((acc,elem) => acc + elem.precio, 0)
-        precioServ.innerHTML = `Total: ${total}`
-        botonSelecc.innerHTML = `<button id="btnBorrarSelecc" class="btn btn-secondary mx-2 bottom">Borrar selección</button>`
+            if(JSON.parse(localStorage.getItem("prepaga"))){
+                //Reviso si el servicio está cubierto
+                let prepagaGuardada = JSON.parse(localStorage.getItem("prepaga"))
+                let servCubiertos = prepagaGuardada.servicios
+                let cubre = servCubiertos.some((el)=>el===serv.servicio)
+                
+                !cubre && servNoCubiertos.push(serv)
+                
+                let infoCubre = cubre ? "Cubierto" : "No cubierto"
+
+                //Escribo el elemento en el catálogo de servicios
+                servicioNuevo.className = ""
+                servicioNuevo.innerHTML = `
+                    <div id="${serv.id}" class="card" style="width: 100%;">
+                        <div class="card-body">
+                            <h4 class="card-title">${serv.servicio}</h4>
+                            <p>${serv.especialidad}</p>
+                            <p>Precio: $ ${serv.precio} - ${infoCubre}</p>
+                        </div>
+                        
+                </div> `
+                servAgregado.append(servicioNuevo)
+                let totalNoCubierto = servNoCubiertos.reduce((acc,elem) => acc + elem.precio, 0)
+                let total = array.reduce((acc,elem) => acc + elem.precio, 0)
+                precioServ.innerText = `Total sin cobertura: $${total} - Con ${prepagaGuardada.nombre}: $${totalNoCubierto}`
+                botonSelecc.innerHTML = `<button id="btnBorrarSelecc" class="btn btn-secondary mx-2 bottom">Borrar selección</button>`
+
+            }else{
+                servicioNuevo.className = ""
+                servicioNuevo.innerHTML = `
+                    <div id="${serv.id}" class="card" style="width: 100%;">
+                        <div class="card-body">
+                            <h4 class="card-title">${serv.servicio}</h4>
+                            <p>${serv.especialidad}</p>
+                            <p>Precio: $ ${serv.precio}</p>
+                        </div>
+                        
+                </div> `
+                servAgregado.append(servicioNuevo)
+                let total = array.reduce((acc,elem) => acc + elem.precio, 0)
+                precioServ.innerHTML = `Total: ${total}`
+                botonSelecc.innerHTML = `<button id="btnBorrarSelecc" class="btn btn-secondary mx-2 bottom">Borrar selección</button>`
+            }
+            
+
+            }
+            
         //Defino evento para borrar los servicios seleccionados con el boton de borrado
         btnBorrarSelecc.addEventListener("click", () => {
             localStorage.removeItem('servSelecc');
             arrServSeleccionados = []
+            servNoCubiertos = []
             servAgregado.innerHTML = "Todavía no seleccionaste servicios"
             precioServ.innerHTML = ""
             botonSelecc.innerHTML = ""
@@ -296,7 +325,7 @@ btnNuevo.addEventListener("click", () => {
         console.log(prepagaSelect.value)
         
         if (prepagaSelect.value != 5){
-            /* cubrePrepaga.innerText = "Tu prepaga cubre la atención médica en este consultorio" */
+            //Metodo fetch para verificar que cubre la prepaga del paciente
             fetch("prepagas.json")
             .then((res)=>res.json())
             .then((data)=>{
@@ -305,11 +334,12 @@ btnNuevo.addEventListener("click", () => {
                 let prepaga = data.find((ele)=>ele.nombre === prepagas[prepagaSelect.value-1])
                 console.log(prepaga)
                 cubrePrepaga.innerText = `Tu prepaga cubre: ${prepaga.servicios}`
+                localStorage.setItem("prepaga",JSON.stringify(prepaga))
             })
         }else{
             cubrePrepaga.innerText = "Deberás ingresar como privado"
         }
-        
+         
     })
      
 })
@@ -321,7 +351,10 @@ btnPresion.addEventListener("click", () => {
     
     console.log(presionSis.value)
     if((!parseFloat(presionSis.value))||(!parseFloat(presionDias.value))){
-        alert("Debes ingresar valores numéricos")
+        Swal.fire({
+                    icon: 'warning',
+                    title: 'Ingrese valores numéricos',
+                  })
         resultado = ""
     }else{
         resultado = presion(parseFloat(presionSis.value),parseFloat(presionDias.value))
@@ -334,7 +367,10 @@ btnPresion.addEventListener("click", () => {
 btnimc.addEventListener("click", () => {
     let resultadoimc
     if((!parseFloat(peso.value))||(!parseFloat(altura.value))){
-        alert("Debes ingresar valores numéricos")
+        Swal.fire({
+            icon: 'warning',
+            title: 'Ingrese valores numéricos',
+          })
         resultadoimc = ""
     }else{
         resultadoimc = imc(parseFloat(peso.value),parseFloat(altura.value))
@@ -446,6 +482,7 @@ const serviciosDisponibles = [consulta,revision, pap, ecg, peeling, fondoOjos, e
 
 //Hago el caso de primera vez o no para los servicios seleccionados, dado que guardo la selección del usuario hasta que envía la consulta
 let arrServSeleccionados = []
+let servNoCubiertos = []
 if(localStorage.getItem("servSelecc")){
     //solo entro en el caso de que se haya guardado (quedo la accion de envio de consulta inconclusa)
     for(let serv of JSON.parse(localStorage.getItem("servSelecc"))){
