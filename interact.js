@@ -10,51 +10,6 @@ function menu (nombre, seccion,opciones, cantOpciones){
     return elecc
 }
 
-function menuPrincipal (nombre){
-    let eleccPrinc
-    let elecc2 = 1
-    
-    do{
-        eleccPrinc = menu(nombre,"Menú principal", "1. Pedir un turno \n2.Calcular mi Índice de masa corporal (IMC) \n3.Chequear mis valores de presión\n4.Consulta Servicios \n5. Salir",5)
-        switch(eleccPrinc){
-            case 1:
-                console.log(" caso 1. Pedir un turno")
-                let noesp
-                noesp = pedirTurno(nombre)
-                if (noesp == 1){
-                    //si no estaba la especialidad, la redirigimos directamente al menu principal
-                    elecc2 = 1
-                }else{
-                    //si habia la especialidad le presguntamos tambien si quiere  salir
-                    elecc2 = menu(nombre,"Qué hacemos?","1.Volver al Menú principal \n2. Salir",2)
-                }
-                
-                break
-            case 2:
-                console.log("caso 2.Calcular mi Índice de masa corporal(IMC)")
-                imc(nombre)
-                elecc2 = menu(nombre,"Qué hacemos?","1.Volver al Menú principal \n2. Salir",2)
-                break
-            case 3:
-                console.log("caso 3.Chequear mis valores de presión")
-                presion(nombre)
-                elecc2 = menu(nombre,"Qué hacemos?","1.Volver al Menú principal \n2. Salir",2)
-                break
-            case 4:
-                console.log("caso 4.Consulta servicios")
-                consultaServicios(nombre, serviciosDisponibles,especialidades)
-                elecc2 = menu(nombre,"Qué hacemos?","1.Volver al Menú principal \n2. Salir",2)
-                break
-            default:
-                salir(nombre)
-                break
-        }
-    } while(elecc2!=2 && eleccPrinc != 5 )
-    if (eleccPrinc!=5){
-        //Si eligio 4 en el menu principal, ya la despidieron antes. Hago un caso aparte solo si se quisieron ir luego de haber realizado 1,2 o 3
-        salir(nombre)
-    }
-}
 
 function imc(peso,altura){
     console.log(peso)
@@ -91,59 +46,7 @@ function presion(sist,diast){
 }
 
 
-function pedirTurno(nombre){
-    let nuevo
-    let prepaga
-    let prepagaNombre
-    let especialidad
-    let disponibilidad
-    let noespec = 2
-    //Primero le pedimos la especialidad, para no hacerle perder tiempo si esta lo que busca
-    especialidad = menu(nombre,"Consulta turnos: Especialidad", "1. Ginecología\n2.Oftalmología\n3.Cardiología\n4.Clínica\n5.Dermatología\n6.Otra",6)
-    if (especialidad==6){
-        //Caso no atienden esa especialidad: le avisamos y lo redirigimos
-        alert("Lo lamentamos, solo contamos con las especialidades listadas")
-        
-        noespec = 1
-    }
-    else{
-        //Si atienden le pedimos los datos
-        disponibilidad = menu(nombre, "Consulta turnos: Disponibilidad horaria \n Atendemos días de semana de 8 a 20 hs", "1. Mañana\n 2. Tarde \n 3. Mañana y tarde",3)
-        nuevo = menu(nombre,"Consulta turnos", "1. Soy un paciente nuevo en el consultorio\n 2.Ya me atendí en el consultorio",2)
-        if(nuevo == 1){
-            let datosOK = 2
-            do{
-                //si es nuevo hay que pedirle mas datos
-                let apellido = prompt("Ingresá tu apellido")
-                let celular = prompt("Ingresá tu celular sin espacios")
-                prepaga = menu(nombre,"Consulta turnos: prepaga/Obra Social", "1. Swiss Medical\n2. OSDE\n3. Galeno\n4. Medicus\n5. No tengo/Otra",5)
-                //const prepagasAceptadas = ["Swiss Medical","OSDE","Galeno","Medicus"]
-                if (prepaga <= 4){
-                    alert("La atención está cubierta por tu prepaga")
-                    prepagaNombre = prepagasAceptadas[prepaga-1]
-                }else{
-                    alert("La atención no está cubierta por tu prepaga. Te agendaremos como privado.")
-                    prepagaNombre = "Privado"
-                }
-                let dni = prompt("Ingresá tu DNI sin puntos ni comas")
-                const paciente = new PacienteNuevo(nombre,apellido,dni,celular,prepagaNombre)
-                
-                paciente.mostrarInfoPaciente()
 
-                datosOK = menu(nombre,"Confirmación datos ingresados", "1. Mis datos estaban ok\n2. Quiero corregir mis datos",2)
-            }while(datosOK!=1)
-            
-        }
-        //si no es nuevo, ya con el dni del paciente deberian rastrear el resto de los datos de contacto
-        //let dni = prompt("Ingresá tu DNI sin puntos ni comas")
-
-        alert("Listo! Quedó registrada tu consulta por el turno. Nos vamos a comunicar para enviarte los turnos disponibles.")
-    }
-    
-
-    return noespec
-
-}
 
 function consultaServicios(servicios,especialidades,especBusq){
     //Buscador de servicios del consultorio
@@ -159,9 +62,7 @@ function consultaServicios(servicios,especialidades,especBusq){
     return servFiltrados
 }
 
-function salir(nombre){
-    alert(`¡Gracias por visitarnos ${nombre}!`)
-}
+
 
 //DOM
 //CAPTURA DOM
@@ -234,12 +135,17 @@ function mostrarCatalogoDOM(array){
             if (!yaSeleccionoServ){
                 arrServSeleccionados.push(serv)
                 //Aviso que se agrego a los seleccionados
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Servicio seleccionado',
-                    text: 'Ya agregamos el servicio al apartado de consultas',
-                   /*  footer: '<a href="">Why do I have this issue?</a>' */
-                  })
+                  Toastify({
+                    text: `Servicio seleccionado: ${serv.servicio}`,
+                    duration: 4500,
+                    newWindow: true,
+                    gravity: "top",
+                    position: 'right',
+                    style: {
+                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                      }
+                    
+                  }).showToast();
                 //Guardo en local storage
                 localStorage.setItem("servSelecc", JSON.stringify(arrServSeleccionados))
                 mostrarServSelecc(arrServSeleccionados)
@@ -248,12 +154,22 @@ function mostrarCatalogoDOM(array){
                 
             }else{
                 //Aviso que no se puede agregar dos veces lo mismo
-                Swal.fire({
+                /* Swal.fire({
                     icon: 'warning',
                     title: 'El servicio ya está seleccionado',
                     text: 'No se puede seleccionar más de una vez el mismo servicio',
-                   /*  footer: '<a href="">Why do I have this issue?</a>' */
-                  })
+                  }) */
+                  Toastify({
+                    text: `El servicio ${serv.servicio} ya estaba seleccionado`,
+                    duration: 4500,
+                    newWindow: true,
+                    gravity: "top",
+                    position: 'right',
+                    style: {
+                        background: "linear-gradient(to right, #CD5C5C, #FFB6C1)",
+                    },
+                    
+                  }).showToast();
             }
             
 
@@ -378,11 +294,22 @@ btnNuevo.addEventListener("click", () => {
     prepagaSelect.addEventListener("change", () => {
         // console.log("Detecto cambio")
         console.log(prepagaSelect.value)
+        
         if (prepagaSelect.value != 5){
-            cubrePrepaga.innerText = "Tu prepaga cubre la atención médica en este consultorio"
+            /* cubrePrepaga.innerText = "Tu prepaga cubre la atención médica en este consultorio" */
+            fetch("prepagas.json")
+            .then((res)=>res.json())
+            .then((data)=>{
+                console.log(data)
+                let prepagas = data.map((el) =>el.nombre)
+                let prepaga = data.find((ele)=>ele.nombre === prepagas[prepagaSelect.value-1])
+                console.log(prepaga)
+                cubrePrepaga.innerText = `Tu prepaga cubre: ${prepaga.servicios}`
+            })
         }else{
             cubrePrepaga.innerText = "Deberás ingresar como privado"
         }
+        
     })
      
 })
@@ -486,6 +413,14 @@ class PacienteNuevo{
     }
 
 }
+
+//servConsulta = serviciosSelect.map((el)=>el.servicio)
+/* class Consulta(dni,disponibilidad,servSelecc){
+    this.dni = dni;
+    this.disponibilidad = disponibilidad;
+    this.servSelecc = {...servSelecc};
+
+} */
 
 function Servicio(servicio,precio,descrip, especialidad,imagen) {
     this.servicio = servicio;

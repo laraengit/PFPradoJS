@@ -1,0 +1,19 @@
+[
+    {
+        "nombre":"Swiss Medical",
+        "servicios":["consulta","revision", "pap", "ecg", "fondoOjos", "ergometria"]
+    },
+
+    {
+        "nombre":"OSDE",
+        "servicios":["consulta","revision", "pap", "ecg", "peeling","fondoOjos", "ergometria"]
+    },
+    {
+        "nombre":"Galeno",
+        "servicios":["consulta","revision", "pap", "ecg", "fondoOjos"]
+    },
+    {
+        "nombre":"Medicus",
+        "servicios":["consulta","revision", "pap", "ecg"]
+    }
+]
