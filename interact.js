@@ -82,6 +82,7 @@ let resultIMC = document.getElementById("resultIMC")
 let btnIngresado = document.getElementById("btnIngresado")
 let btnNuevo = document.getElementById("btnNuevo")
 let infoPaciente = document.getElementById("divInfoPaciente")
+let consultaPaciente = document.getElementById("consultaPaciente")
 let servAgregado = document.getElementById("servAgregados")
 let botonSelecc = document.getElementById("botonSelecc")
 let precioServ = document.getElementById("precioServ")
@@ -129,6 +130,7 @@ function mostrarCatalogoDOM(array){
         let agregarBtn = document.getElementById(`btnAgregar${serv.servicio}`)
         console.log(agregarBtn)
         agregarBtn.addEventListener("click", () => {
+            haySeleccion = true
             //Primero reviso si ya está seleccionado
             let yaSeleccionoServ = arrServSeleccionados.find((elem)=>(elem.servicio === serv.servicio)&&(elem.especialidad === serv.especialidad))
             //Si no fue seleccionado todavía, entonces sí lo agrego al array de serv seleccionados y actualizo el visor de seleccionados
@@ -232,6 +234,7 @@ function mostrarServSelecc(array){
         //Defino evento para borrar los servicios seleccionados con el boton de borrado
         btnBorrarSelecc.addEventListener("click", () => {
             localStorage.removeItem('servSelecc');
+            haySeleccion = false
             arrServSeleccionados = []
             servNoCubiertos = []
             servAgregado.innerHTML = "Todavía no seleccionaste servicios"
@@ -266,40 +269,10 @@ filtroServicios.addEventListener("change", () => {
 //Turnos
 //Paciente ya ingresado
 btnIngresado.addEventListener("click", () => {
-    infoPaciente.innerHTML = `<form action="">
+    pacNuevo = false
+    infoPaciente.innerHTML = `<form id = "formPaciente" action="">
     <label for="DNI">DNI: </label>
     <input type="text" name="Nombre" id="nombre" required>
-    <label for="">Disponibilidad:</label>
-    <select name="" id="idAgenda" required>
-        <option value="1">Mañana</option>
-        <option value="2">Tarde</option>
-        <option value="3">Indistinto</option>
-    </select>
-    <input type="submit" value="Solicitar Turno" class="btn-danger">
-
-    
-</form>`
-    /* divSolTurno.innerHTML(`<button id="btnSolicitarTurno" class="btn btn-secondary mx-5 bottom">Solicitar turno</button>`)
-    let btnSolicTurno = document.getElementById("btnSolicitarTurno")
-    btnSolicTurno.addEventListener("click", () => {
-        if(nombre){}
-
-        }
-    
-     
-    }) */
-})
-//Paciente nuevo
-btnNuevo.addEventListener("click", () => {
-    infoPaciente.innerHTML = `<form action="">
-    <label for="Nombre">Nombre: </label>
-    <input type="text" name="Nombre" id="">
-    <label for="Nombre">Apellido: </label>
-    <input type="text" name="Nombre" id="" required>
-    <label for="DNI">DNI: </label>
-    <input type="text" name="Nombre" id="" required>
-    <label for="DNI">Celular: </label>
-    <input type="text" name="Nombre" id="" required>
     <label for="">Disponibilidad:</label>
     <select name="" id="idAgenda" required>
         <option value="1">Mañana</option>
@@ -316,6 +289,46 @@ btnNuevo.addEventListener("click", () => {
     </select>
     <div id="cubrePrepaga"></div>
     <input type="submit" value="Solicitar Turno" class="btn-danger">
+    
+</form>`
+    /* divSolTurno.innerHTML(`<button id="btnSolicitarTurno" class="btn btn-secondary mx-5 bottom">Solicitar turno</button>`)
+    let btnSolicTurno = document.getElementById("btnSolicitarTurno")
+    btnSolicTurno.addEventListener("click", () => {
+        if(nombre){}
+
+        }
+    
+     
+    }) */
+})
+//Paciente nuevo
+btnNuevo.addEventListener("click", () => {
+    pacNuevo = true
+    infoPaciente.innerHTML = `<form id = "formPaciente" action="">
+    <label for="nombre">Nombre: </label>
+    <input type="text" name="nombre" id="">
+    <label for="Nombre">Apellido: </label>
+    <input type="text" name="apellido" id="" required>
+    <label for="DNI">DNI: </label>
+    <input type="number" name="dni" id="" required>
+    <label for="DNI">Celular: </label>
+    <input type="number" name="celular" id="" required>
+    <label for="">Disponibilidad:</label>
+    <select name="dispo" id="idAgenda" required>
+        <option value="1">Mañana</option>
+        <option value="2">Tarde</option>
+        <option value="3">Indistinto</option>
+    </select>
+    <label for="">Selecioná tu prepaga:</label>
+    <select name="prepaga" id="idPrepaga" required>
+        <option value="1">Swiss Medical</option>
+        <option value="2">OSDE</option>
+        <option value="3">Galeno</option>
+        <option value="4">Medicus</option>
+        <option value="5">Otra/No tengo</option>
+    </select>
+    <div id="cubrePrepaga"></div>
+    <input type="submit" value="Escribir Consulta" class="btn-danger">
     
     </form>`
     let cubrePrepaga = document.getElementById("cubrePrepaga")
@@ -341,8 +354,36 @@ btnNuevo.addEventListener("click", () => {
         }
          
     })
-     
+
+    let formPaciente = document.querySelector("form");
+    formPaciente.addEventListener("submit", (event)=>{
+        event.preventDefault();
+        console.log("Formulario Enviado");  
+       if (haySeleccion){
+            escribirConsulta(formPaciente,arrServSeleccionados,pacNuevo)
+        }else{
+            Swal.fire({
+                icon: 'warning',
+                title: 'Primero debes tenes un servicio seleccionado',
+            })
+
+        } 
+    })
 })
+
+function escribirConsulta(formulario,servicios,pacNuevo){
+    /* form = formulario.getValues() */
+   let Nuevo= pacNuevo ? "nuevo" : "ya ingresado"
+    let consulta = `Mi nombre es ${formulario["nombre"].value}`
+    consultaPaciente.innerHTML = `<h4>Tu consulta</h4>
+    <h5>Tu datos</h5>
+    <p>Nombre: ${formulario["nombre"].value}</p>
+    <p>Apellido: ${formulario["nombre"].value}</p>
+    <p>DNI: ${formulario["dni"].value}</p>
+    <p>Prepaga: ${nombresPrepagas[formulario["prepaga"].value-1]}</p>
+    <h5>Tu consulta</h5>
+    <p>Disponibilidad: ${horarios[formulario["dispo"].value-1]}</p>`
+}
 
 //Herramientas
 //Presion
@@ -479,12 +520,20 @@ const peeling = new Servicio("Peeling",10000,"Peeling: Tratamiento dermatológic
 const fondoOjos = new Servicio("Fondo de ojos",2000,"Permite observar la parte posterior del interior del ojo. Para ello se usan gotas que dilatan las pupilas y cuyo efecto dura unas horas. Se usa para prevenir o hacer el seguimiento de enfermedades.","Oftalmología","fondoOjos.jpg")
 //Todos los servicios
 const serviciosDisponibles = [consulta,revision, pap, ecg, peeling, fondoOjos, ergometria]
+const horarios = ["Mañana","Tarde","Mañana y Tarde"]
+const nombresPrepagas = ["Swiss Medical","OSDE","Galeno","Medicus","Otra/No Tengo"]
+
+//Nueva consulta
+let nuevaConsulta = []
+let pacNuevo 
+let haySeleccion
 
 //Hago el caso de primera vez o no para los servicios seleccionados, dado que guardo la selección del usuario hasta que envía la consulta
 let arrServSeleccionados = []
 let servNoCubiertos = []
 if(localStorage.getItem("servSelecc")){
     //solo entro en el caso de que se haya guardado (quedo la accion de envio de consulta inconclusa)
+    haySeleccion = true
     for(let serv of JSON.parse(localStorage.getItem("servSelecc"))){
         let servClase = new Servicio (serv.servicio, serv.precio, serv.descripcion, serv.especialidad, serv.imagen)
         arrServSeleccionados.push(servClase)
@@ -492,6 +541,7 @@ if(localStorage.getItem("servSelecc")){
 
 }
 
+//
 
 //Interacción semilla
 mostrarCatalogoDOM(serviciosDisponibles)

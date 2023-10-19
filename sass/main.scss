@@ -45,7 +45,7 @@
                 flex-direction: column;
             };
         }
-        #presion,#imc{
+        #presion,#imc,#consultaPaciente{
             /* border-right: thin solid #243d6a; */
             border-radius: 10px;
             border: solid rgb(219, 216, 216);
@@ -72,6 +72,17 @@
         
     }
    
+    #consultaPaciente{
+        padding: 1%;
+        width: 70%;
+        text-align: center;
+        margin: 3%;
+        border-radius: 10px;
+        border: solid rgb(219, 216, 216);
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.784);
+
+    }
 
     .botonesTurno{
         display: inline;
