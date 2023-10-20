@@ -297,7 +297,7 @@ btnIngresado.addEventListener("click", () => {
         <option value="5">Otra/No tengo</option>
     </select>
     <div id="cubrePrepaga"></div>
-    <input type="submit" value="Solicitar Turno" class="btn-danger">
+    <input type="submit" value="Escribir Consulta" class="btn-danger">
     
 </form>`
 let cubrePrepaga = document.getElementById("cubrePrepaga")
@@ -425,22 +425,45 @@ btnNuevo.addEventListener("click", () => {
 
 function escribirConsulta(formulario,servicios,pacNuevo){
     /* form = formulario.getValues() */
-    let Nuevo= pacNuevo ? "nuevo" : "ya ingresado"
     let servInteres= servicios.map((el) =>el.servicio)
+    if (pacNuevo){
+        //Si el paciente es nuevo, tengo que levantar los datos del formulario
+        let paciente = new Paciente(formulario)
+        localStorage.setItem(String(formulario["dni"].value),JSON.stringify(paciente))
+        
+
+    }else{
+        //Si el paciente no es nuevo, ya tengo los datos guardados
+        if(!(JSON.parse(localStorage.getItem(String(formulario["dni"].value))))){
+            Swal.fire({
+                icon: 'warning',
+                title: 'El DNI ingresado no ha sido ingresado todavía',
+              })
+            
+        }else{
+            
+        }
+        
+
+    }
+    //ahora si o si tengo guardados los datos del paciente en storage
+    let datosPaciente = JSON.parse(localStorage.getItem(String(formulario["dni"].value)))
+    let Nuevo= pacNuevo ? "nuevo" : "ya ingresado"
     let consulta = `<h4>Tu consulta</h4>
     <h5>Tu datos</h5>
-    <p>Nombre: ${formulario["nombre"].value}</p>
-    <p>Apellido: ${formulario["apellido"].value}</p>
-    <p>DNI: ${formulario["dni"].value}</p>
-    <p>Prepaga: ${nombresPrepagas[formulario["prepaga"].value-1]}</p>
+    <p>Nombre: ${datosPaciente.nombre}</p>
+    <p>Apellido: ${datosPaciente.apellido}</p>
+    <p>DNI: ${datosPaciente.dni}</p>
+    <p>Prepaga: ${nombresPrepagas[datosPaciente.prepaga-1]}</p>
     <p>Paciente: ${Nuevo}</p>
     <h5>Tu consulta</h5>
     <p>Disponibilidad: ${horarios[formulario["dispo"].value-1]}</p>
     <p>Servicios de interés: ${separarArrayStr(servInteres)}</p>`
     //Aprovecho a guardar la data del paciente
     consultaPaciente.innerHTML = consulta
-    let paciente = new Paciente(formulario)
-    localStorage.setItem(String(formulario["dni"].value),JSON.stringify(paciente))
+    /* let paciente = new Paciente(formulario)
+    localStorage.setItem(String(formulario["dni"].value),JSON.stringify(paciente)) */
+    //Guardo consulta también
     localStorage.setItem("ultConsulta",JSON.stringify(consulta))
 }
 
