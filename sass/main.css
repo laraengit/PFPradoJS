@@ -111,7 +111,7 @@
   color: white;
   background-color: rgb(0, 30, 67);
 }
-.darkMode #presion, .darkMode #imc, .darkMode #consultaPaciente {
+.darkMode #presion, .darkMode #imc, .darkMode #consultaPaciente, .darkMode #btnModalIngreso {
   color: rgb(57, 57, 57);
 }
 

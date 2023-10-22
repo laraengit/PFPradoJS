@@ -70,6 +70,7 @@ let resultPresion = document.getElementById("resultPresion")
 let resultIMC = document.getElementById("resultIMC")
 //Turnos
 let divErrorIngreso = document.getElementById("divErrorIngreso")
+let btnModalIngreso = document.getElementById("btnModalIngreso")
 let btnIngresado = document.getElementById("btnIngresado")
 let btnNuevo = document.getElementById("btnNuevo")
 let infoPaciente = document.getElementById("divInfoPaciente")
@@ -304,9 +305,8 @@ btnIngresado.addEventListener("click", () => {
         }else{
             divErrorIngreso.innerHTML = `DNI ingresado satisfactoriamente`
             sessionStorage.setItem("dni",String(formPaciente["dni"].value))
-            
         }
-        //Actualizo mis valores de mi selección anterior sin completar
+        //Actualizo mis valores de mi selección de servicios anterior sin completar
         if(localStorage.getItem("servSelecc")){
             //solo entro en el caso de que se haya guardado (quedo la accion de envio de consulta inconclusa)
             haySeleccion = true
@@ -510,7 +510,8 @@ btnEnviarConsulta.addEventListener("click",( )=>{
                 ultConsultaTiempo.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
             },10000)
         }else{
-            ultConsulta.innerHTML = `No hay registradas consultas`
+            ultConsultaTiempo.innerHTML = ""
+            ultConsulta.innerHTML = `No hay registradas consultas previas`
         }
         
         
