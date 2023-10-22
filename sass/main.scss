@@ -92,7 +92,7 @@
     
 }
 #divErrorIngreso{
-    color: rgb(182, 29, 29);
+    color: rgb(30, 28, 28);
 }
 #divInfoPaciente{
     form{
@@ -105,14 +105,14 @@
             display: block;
             text-align: left;
         }
-
     }
     
 }
 
-#botonSelecc,#botonUltConsulta{
-    margin: 2%;
+#botonSelecc,#ultConsulta,#ultConsultaTiempo{
+    margin: 1%;
 }
+
 
 #dispo{
     :nth-child(n){

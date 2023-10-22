@@ -1,5 +1,6 @@
+//Luxon
+const DateTime = luxon.DateTime
 //Funciones indep del DOM
-
 function imc(peso,altura){
     console.log(peso)
     console.log(altura)
@@ -265,16 +266,7 @@ function mostrarServSelecc(array){
     }
     
 }
-function tiempoConsultaFunc(timeUlt){
-    const Interval = luxon.Interval; 
-    let tiempoConsulta
-    let ahora
-    setInterval(()=>{
-        ahora = DateTime.now()
-        tiempoConsulta = Interval.fromDateTimes(timeUlt,ahora);
-        console.log(tiempoConsulta)
-        ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
-    },10000)}
+
 //Filtrar por especialidad
 filtroServicios.addEventListener("change", () => {
     // console.log("Detecto cambio")
@@ -299,7 +291,7 @@ btnIngresado.addEventListener("click", () => {
     infoPaciente.innerHTML = `<form id = "formPaciente" name = "formPaciente" action="">
     <label for="DNI">DNI: </label>
     <input type="number" name="dni" id="nombre" required>
-    <input type="submit" value="Ingresar" class="btn-danger">
+    <input type="submit" value="Ingresar" class=" btn-danger">
     
 </form>`
     let formPaciente = document.querySelector("form");
@@ -310,7 +302,7 @@ btnIngresado.addEventListener("click", () => {
         if(!(JSON.parse(localStorage.getItem(String(formPaciente["dni"].value))))){
             divErrorIngreso.innerHTML = `El DNI ingresado no estaba registrado.`
         }else{
-            divErrorIngreso.innerHTML = ``
+            divErrorIngreso.innerHTML = `DNI ingresado satisfactoriamente`
             sessionStorage.setItem("dni",String(formPaciente["dni"].value))
             
         }
@@ -403,6 +395,7 @@ btnNuevo.addEventListener("click", () => {
 
     let formPaciente = document.querySelector("form");
     formPaciente.addEventListener("submit", (event)=>{
+        divErrorIngreso.innerHTML = `DNI ingresado satisfactoriamente`
         event.preventDefault();
         console.log(formPaciente["nombre"].value)
         console.log("Formulario Enviado"); 
@@ -465,9 +458,10 @@ btnConsulta.addEventListener("click",()=>{
           })
     }
 })
-const DateTime = luxon.DateTime
+
 //Envío consulta
 btnEnviarConsulta.addEventListener("click",( )=>{
+    
     if (okConsulta){
         //Borrro la consulta y la selección => Finaliza la accion
         localStorage.removeItem('servSelecc');
@@ -476,7 +470,7 @@ btnEnviarConsulta.addEventListener("click",( )=>{
         servNoCubiertos = []
         servAgregado.innerHTML = "Todavía no seleccionaste servicios"
         precioServ.innerHTML = ""
-        cubrePrepaga = ""
+        cubrePrepaga.innerHTML = ""
         botonSelecc.innerHTML = ""
         consultaPaciente.innerHTML = `<h4>Tu consulta</h4>`
 
@@ -512,6 +506,7 @@ btnEnviarConsulta.addEventListener("click",( )=>{
                 let ahora = DateTime.now()
                 tiempoConsulta = Interval.fromDateTimes(timeUltConsulta,ahora);
                 console.log(tiempoConsulta)
+                if (tiempoConsulta)
                 ultConsultaTiempo.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
             },10000)
         }else{
