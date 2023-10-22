@@ -76,13 +76,14 @@
         padding: 1%;
         width: 400px;
         text-align: left;
-        margin: 3%;
+        margin: 5%;
         border-radius: 10px;
         border: solid rgb(219, 216, 216);
         padding: 10px;
         background-color: rgba(255, 255, 255, 0.784);
 
     }
+    
 
     .botonesTurno{
         display: inline;
@@ -90,7 +91,9 @@
     
     
 }
-
+#divErrorIngreso{
+    color: rgb(182, 29, 29);
+}
 #divInfoPaciente{
     form{
         :nth-child(n){
@@ -107,12 +110,29 @@
     
 }
 
+#botonSelecc,#botonCubre{
+    margin: 5%;
+}
+
+#dispo{
+    :nth-child(n){
+        width: 100%;
+        margin:5%;
+        padding: 1%;
+        border: 0%;
+        
+        display: block;
+        text-align: left;
+    }
+
+}
+
 
 
 .darkMode{
     color:white;
     background-color: rgb(0, 30, 67);
-    #presion,#imc{
+    #presion,#imc,#consultaPaciente{
         color:rgb(57, 57, 57)
     }
 }

@@ -66,6 +66,8 @@ function consultaServicios(servicios,especialidades,especBusq){
 
 //DOM
 //CAPTURA DOM
+//ingreso
+let modalIngreso = document.getElementById("modalIngreso")
 //Servicios
 let containerServicios = document.getElementById("servicios")
 let filtroServicios = document.getElementById("selectFiltrar")
@@ -79,16 +81,21 @@ let altura = document.getElementById("idAltura")
 let resultPresion = document.getElementById("resultPresion")
 let resultIMC = document.getElementById("resultIMC")
 //Turnos
+let divErrorIngreso = document.getElementById("divErrorIngreso")
 let btnIngresado = document.getElementById("btnIngresado")
 let btnNuevo = document.getElementById("btnNuevo")
 let infoPaciente = document.getElementById("divInfoPaciente")
 let consultaPaciente = document.getElementById("consultaPaciente")
 let servAgregado = document.getElementById("servAgregados")
 let botonSelecc = document.getElementById("botonSelecc")
+let botonCubre = document.getElementById("botonCubre")
 let precioServ = document.getElementById("precioServ")
 let divSolTurno = document.getElementById("divSolTurno")
 let ultConsulta = document.getElementById("ultConsulta")
 let btnEnviarConsulta = document.getElementById("btnEnviarConsulta")
+let btnConsulta = document.getElementById("btnConsulta")
+
+
 
 
 
@@ -130,45 +137,54 @@ function mostrarCatalogoDOM(array){
         let agregarBtn = document.getElementById(`btnAgregar${serv.servicio}`)
         console.log(agregarBtn)
         agregarBtn.addEventListener("click", () => {
-            haySeleccion = true
-            //Primero reviso si ya está seleccionado
-            let yaSeleccionoServ = arrServSeleccionados.find((elem)=>(elem.servicio === serv.servicio)&&(elem.especialidad === serv.especialidad))
-            //Si no fue seleccionado todavía, entonces sí lo agrego al array de serv seleccionados y actualizo el visor de seleccionados
-            if (!yaSeleccionoServ){
-                arrServSeleccionados.push(serv)
-                //Aviso que se agrego a los seleccionados
-                  Toastify({
-                    text: `Servicio seleccionado: ${serv.servicio}`,
-                    duration: 4500,
-                    newWindow: true,
-                    gravity: "top",
-                    position: 'right',
-                    style: {
-                        background: "linear-gradient(to right, #00b09b, #96c93d)",
-                      }
+            if (ingresadoFlag){
+                haySeleccion = true
+                //Primero reviso si ya está seleccionado
+                let yaSeleccionoServ = arrServSeleccionados.find((elem)=>(elem.servicio === serv.servicio)&&(elem.especialidad === serv.especialidad))
+                //Si no fue seleccionado todavía, entonces sí lo agrego al array de serv seleccionados y actualizo el visor de seleccionados
+                if (!yaSeleccionoServ){
+                    arrServSeleccionados.push(serv)
+                    //Aviso que se agrego a los seleccionados
+                    Toastify({
+                        text: `Servicio seleccionado: ${serv.servicio}`,
+                        duration: 4500,
+                        newWindow: true,
+                        gravity: "top",
+                        position: 'right',
+                        style: {
+                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                        }
+                        
+                    }).showToast();
+                    //Guardo en local storage
+                    localStorage.setItem("servSelecc", JSON.stringify(arrServSeleccionados))
+                    mostrarServSelecc(arrServSeleccionados)
+                    /* let total = arrServSeleccionados.reduce((acc,elem) => acc + elem.precio, 0)
+                    precioServ.innerHTML = `Total: ${total}` */
                     
-                  }).showToast();
-                //Guardo en local storage
-                localStorage.setItem("servSelecc", JSON.stringify(arrServSeleccionados))
-                mostrarServSelecc(arrServSeleccionados)
-                /* let total = arrServSeleccionados.reduce((acc,elem) => acc + elem.precio, 0)
-                precioServ.innerHTML = `Total: ${total}` */
-                
-            }else{
-                //Aviso que no se puede agregar dos veces lo mismo
-                
-                  Toastify({
-                    text: `El servicio ${serv.servicio} ya estaba seleccionado`,
-                    duration: 4500,
-                    newWindow: true,
-                    gravity: "top",
-                    position: 'right',
-                    style: {
-                        background: "linear-gradient(to right, #CD5C5C, #FFB6C1)",
-                    },
+                }else{
+                    //Aviso que no se puede agregar dos veces lo mismo
                     
-                  }).showToast();
-            }
+                    Toastify({
+                        text: `El servicio ${serv.servicio} ya estaba seleccionado`,
+                        duration: 4500,
+                        newWindow: true,
+                        gravity: "top",
+                        position: 'right',
+                        style: {
+                            background: "linear-gradient(to right, #CD5C5C, #FFB6C1)",
+                        },
+                        
+                    }).showToast();
+                }
+
+                }else{
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Antes de cargar tu sellección, debes ingresar con tus datos',
+                      })
+                }
+            
             
 
         })
@@ -180,69 +196,135 @@ function mostrarServSelecc(array){
     if(array.length != 0){
         //Reseteo lo que ya estaba
         servAgregado.innerHTML = ""
-        //Recorro todos los elementos (servicios seleccionados) de mi array
-        for(let serv of array){
-            let servicioNuevo= document.createElement("div")
-            //Solo me interesa mostrar el servicio, la especialidad y el precio: el resto de la info ya la tiene en catalogo
-            if(JSON.parse(localStorage.getItem("prepaga"))){
-                //Reviso si el servicio está cubierto
-                let prepagaGuardada = JSON.parse(localStorage.getItem("prepaga"))
-                let servCubiertos = prepagaGuardada.servicios
-                let cubre = servCubiertos.some((el)=>el===serv.servicio)
-                
-                !cubre && servNoCubiertos.push(serv)
-                
-                let infoCubre = cubre ? "Cubierto" : "No cubierto"
-
-                //Escribo el elemento en el catálogo de servicios
-                servicioNuevo.className = ""
-                servicioNuevo.innerHTML = `
-                    <div id="${serv.id}" class="card" style="width: 100%;">
-                        <div class="card-body">
-                            <h4 class="card-title">${serv.servicio}</h4>
-                            <p>${serv.especialidad}</p>
-                            <p>Precio: $ ${serv.precio} - ${infoCubre}</p>
-                        </div>
+        //Me traigo los datos de la prepaga
+        let dni = JSON.parse(sessionStorage.getItem("dni"))
+        let datosPaciente = JSON.parse(localStorage.getItem(dni))
+        let prep = parseInt(datosPaciente.prepaga)
+        console.log(prep)
+        fetch("prepagas.json")
+                .then((res)=>res.json())
+                .then((data)=>{
+                    console.log(data)
+                    let prepagas = data.map((el) =>el.nombre)
+                    console.log(prepagas)
+                    let prepaga = data.find((ele)=>ele.nombre === prepagas[prep-1])
+                    console.log(prepaga)
+                    let servCubiertos = prepaga.servicios
+                    //Entro en el for para mostrar cada servicio
+                    //Recorro todos los elementos (servicios seleccionados) de mi array
+                    for(let serv of array){
+                        let servicioNuevo= document.createElement("div")
+                        //Solo me interesa mostrar el servicio, la especialidad y el precio: el resto de la info ya la tiene en catalogo
                         
-                </div> `
-                servAgregado.append(servicioNuevo)
-                let totalNoCubierto = servNoCubiertos.reduce((acc,elem) => acc + elem.precio, 0)
-                let total = array.reduce((acc,elem) => acc + elem.precio, 0)
-                precioServ.innerText = `Total sin cobertura: $${total} - Con ${prepagaGuardada.nombre}: $${totalNoCubierto}`
-                botonSelecc.innerHTML = `<button id="btnBorrarSelecc" class="btn btn-secondary mx-2 bottom">Borrar selección</button>`
 
-            }else{
-                servicioNuevo.className = ""
-                servicioNuevo.innerHTML = `
-                    <div id="${serv.id}" class="card" style="width: 100%;">
-                        <div class="card-body">
-                            <h4 class="card-title">${serv.servicio}</h4>
-                            <p>${serv.especialidad}</p>
-                            <p>Precio: $ ${serv.precio}</p>
-                        </div>
+                        if (prep != 5){
+                            //Metodo fetch para verificar que cubre la prepaga del paciente
+                            
+                                let cubre = servCubiertos.some((el)=>el===serv.servicio)
+                                !cubre ? servNoCubiertos.push(serv) : servSeleccCubierto.push(serv)
+                                let infoCubre = cubre ? "Cubierto" : "No cubierto"
+                                servicioNuevo.className = ""
+                                servicioNuevo.innerHTML = `
+                                    <div id="${serv.id}" class="card" style="width: 100%;">
+                                        <div class="card-body">
+                                            <h4 class="card-title">${serv.servicio}</h4>
+                                            <p>${serv.especialidad}</p>
+                                            <p>Precio: $ ${serv.precio} - ${infoCubre}</p>
+                                        </div>
+                                        
+                                </div> `
+                        }else{
+                                let infoCubre =  "No cubierto"
+                                servicioNuevo.className = ""
+                                servicioNuevo.innerHTML = `
+                                    <div id="${serv.id}" class="card" style="width: 100%;">
+                                        <div class="card-body">
+                                            <h4 class="card-title">${serv.servicio}</h4>
+                                            <p>${serv.especialidad}</p>
+                                            <p>Precio: $ ${serv.precio} - ${infoCubre}</p>
+                                        </div>
+                                        
+                                </div> `
+                        }
+                        //Escribo el elemento en el catálogo de servicios
                         
-                </div> `
-                servAgregado.append(servicioNuevo)
-                let total = array.reduce((acc,elem) => acc + elem.precio, 0)
-                precioServ.innerHTML = `Total: ${total}`
-                botonSelecc.innerHTML = `<button id="btnBorrarSelecc" class="btn btn-secondary mx-2 bottom">Borrar selección</button>`
-            }
-            
+                        servAgregado.append(servicioNuevo)
+                        let totalNoCubierto = servNoCubiertos.reduce((acc,elem) => acc + elem.precio, 0)
+                        let totalCubierto = servSeleccCubierto.reduce((acc,elem) => acc + elem.precio, 0)
+                        let total = array.reduce((acc,elem) => acc + elem.precio, 0)
+                        precioServ.innerText = `Total: $${total}`
+                        cubrePrepaga.innerHTML = `Con ${prepaga.nombre} - Cubierto $${totalCubierto}, No cubierto: $${totalNoCubierto}`
+                        botonSelecc.innerHTML = `<button id="btnBorrarSelecc" class="btn btn-secondary mx-2 bottom">Borrar selección</button>`
+                        
+                        
+                        }
 
-            }
-            
-        //Defino evento para borrar los servicios seleccionados con el boton de borrado
-        btnBorrarSelecc.addEventListener("click", () => {
-            localStorage.removeItem('servSelecc');
-            haySeleccion = false
-            arrServSeleccionados = []
-            servNoCubiertos = []
-            servAgregado.innerHTML = "Todavía no seleccionaste servicios"
-            precioServ.innerHTML = ""
-            botonSelecc.innerHTML = ""
+                        //Defino evento para borrar los servicios seleccionados con el boton de borrado
+                    btnBorrarSelecc.addEventListener("click", () => {
+                        localStorage.removeItem('servSelecc');
+                        haySeleccion = false
+                        arrServSeleccionados = []
+                        servNoCubiertos = []
+                        servAgregado.innerHTML = "Todavía no seleccionaste servicios"
+                        precioServ.innerHTML = ""
+                        botonSelecc.innerHTML = ""
+                        botonCubre.innerHTML = ""
+
+                    
+                    })
+
+
+
+
+                    
+                })//fin then del fetch
 
         
-        })
+            
+        
+
+        /* botonCubre.addEventListener("click",()=>{
+            let cubrePrepaga = document.getElementById("cubrePrepaga")
+            if (ingresadoFlag){
+                let dni = JSON.parse(sessionStorage.getItem("dni"))
+                let datosPaciente = JSON.parse(localStorage.getItem(dni))
+                servCubiertos = prepagaGuardada.servicios
+                let prep = parseInt(datosPaciente.prepaga)
+                console.log(prep)
+
+                if (prep != 5){
+                    //Metodo fetch para verificar que cubre la prepaga del paciente
+                    fetch("prepagas.json")
+                    .then((res)=>res.json())
+                    .then((data)=>{
+                        console.log(data)
+                        let prepagas = data.map((el) =>el.nombre)
+                        console.log(prepagas)
+                        let prepaga = data.find((ele)=>ele.nombre === prepagas[prep-1])
+                        console.log(prepaga)
+                        
+                        //localStorage.setItem("prepaga",JSON.stringify(prepaga))
+                    })
+
+                    //me robe de arriba
+                    let servCubiertos = prepagaGuardada.servicios
+                    let cubre = servCubiertos.some((el)=>el===serv.servicio)
+                    !cubre && servNoCubiertos.push(serv)
+                    let totalNoCubierto = servNoCubiertos.reduce((acc,elem) => acc + elem.precio, 0)
+                    let totalCubierto = servSeleccCubierto.reduce((acc,elem) => acc + elem.precio, 0)
+                    cubrePrepaga.innerText = `Tu prepaga cubre: ${separarArrayStr(prepaga.servicios)}. `
+                }else{
+                    cubrePrepaga.innerText = "Deberás ingresar como privado"
+                }
+
+
+            }else{
+                Swal.fire({
+                    icon: 'warning',
+                    text: 'Primero debes ingresar con tu dni',
+                  })
+            }
+        }) */
     }else{
         servAgregado.innerHTML = "Todavía no seleccionaste servicios"
     }
@@ -279,28 +361,27 @@ function separarArrayStr(array){
 //Paciente ya ingresado
 btnIngresado.addEventListener("click", () => {
     pacNuevo = false
-    infoPaciente.innerHTML = `<form id = "formPaciente" action="">
+    infoPaciente.innerHTML = `<form id = "formPaciente" name = "formPaciente" action="">
     <label for="DNI">DNI: </label>
     <input type="number" name="dni" id="nombre" required>
-    <label for="">Disponibilidad:</label>
-    <select name="dispo" id="idAgenda" required>
-        <option value="1">Mañana</option>
-        <option value="2">Tarde</option>
-        <option value="3">Indistinto</option>
-    </select>
-    <label for="">Selecioná tu prepaga:</label>
-    <select name="prepaga" id="idPrepaga" required>
-        <option value="1">Swiss Medical</option>
-        <option value="2">OSDE</option>
-        <option value="3">Galeno</option>
-        <option value="4">Medicus</option>
-        <option value="5">Otra/No tengo</option>
-    </select>
-    <div id="cubrePrepaga"></div>
-    <input type="submit" value="Escribir Consulta" class="btn-danger">
+    <input type="submit" value="Ingresar" class="btn-danger">
     
 </form>`
-let cubrePrepaga = document.getElementById("cubrePrepaga")
+    let formPaciente = document.querySelector("form");
+    formPaciente.addEventListener("submit", (event)=>{
+        event.preventDefault();
+        console.log("Formulario Enviado"); 
+        ingresadoFlag = true //Levanto la bandera del registro para la consulta y las herramientas
+        if(!(JSON.parse(localStorage.getItem(String(formPaciente["dni"].value))))){
+            divErrorIngreso.innerHTML = `El DNI ingresado no estaba registrado.`
+        }else{
+            divErrorIngreso.innerHTML = ``
+            sessionStorage.setItem("dni",String(formPaciente["dni"].value))
+            
+        }
+        
+    })
+    /* let cubrePrepaga = document.getElementById("cubrePrepaga")
     let prepagaSelect = document.getElementById("idPrepaga")
     prepagaSelect.addEventListener("change", () => {
         // console.log("Detecto cambio")
@@ -316,45 +397,18 @@ let cubrePrepaga = document.getElementById("cubrePrepaga")
                 let prepaga = data.find((ele)=>ele.nombre === prepagas[prepagaSelect.value-1])
                 console.log(prepaga)
                 cubrePrepaga.innerText = `Tu prepaga cubre: ${separarArrayStr(prepaga.servicios)}`
-                localStorage.setItem("prepaga",JSON.stringify(prepaga))
+                //localStorage.setItem("prepaga",JSON.stringify(prepaga))
             })
         }else{
             cubrePrepaga.innerText = "Deberás ingresar como privado"
         }
          
-    })
-
-    let formPaciente = document.querySelector("form");
-    formPaciente.addEventListener("submit", (event)=>{
-        event.preventDefault();
-        console.log("Formulario Enviado");  
-       if (haySeleccion){
-            escribirConsulta(formPaciente,arrServSeleccionados,pacNuevo)
-            okConsulta = true
-        }else{
-            Swal.fire({
-                icon: 'warning',
-                title: 'Primero debes tenes un servicio seleccionado',
-            })
-            okConsulta = false
-
-        } 
-    })
-
-    /* divSolTurno.innerHTML(`<button id="btnSolicitarTurno" class="btn btn-secondary mx-5 bottom">Solicitar turno</button>`)
-    let btnSolicTurno = document.getElementById("btnSolicitarTurno")
-    btnSolicTurno.addEventListener("click", () => {
-        if(nombre){}
-
-        }
-    
-     
     }) */
 })
 //Paciente nuevo
 btnNuevo.addEventListener("click", () => {
     pacNuevo = true
-    infoPaciente.innerHTML = `<form id = "formPaciente" action="">
+    infoPaciente.innerHTML = `<form id = "form" action="">
     <label for="nombre">Nombre: </label>
     <input type="text" name="nombre" id="">
     <label for="Nombre">Apellido: </label>
@@ -363,12 +417,6 @@ btnNuevo.addEventListener("click", () => {
     <input type="number" name="dni" id="" required>
     <label for="DNI">Celular: </label>
     <input type="number" name="celular" id="" required>
-    <label for="">Disponibilidad:</label>
-    <select name="dispo" id="idAgenda" required>
-        <option value="1">Mañana</option>
-        <option value="2">Tarde</option>
-        <option value="3">Indistinto</option>
-    </select>
     <label for="">Selecioná tu prepaga:</label>
     <select name="prepaga" id="idPrepaga" required>
         <option value="1">Swiss Medical</option>
@@ -378,10 +426,10 @@ btnNuevo.addEventListener("click", () => {
         <option value="5">Otra/No tengo</option>
     </select>
     <div id="cubrePrepaga"></div>
-    <input type="submit" value="Escribir Consulta" class="btn-danger">
+    <input type="submit" value="Registrarme" class="btn-danger">
     
     </form>`
-    let cubrePrepaga = document.getElementById("cubrePrepaga")
+    /* let cubrePrepaga = document.getElementById("cubrePrepaga")
     let prepagaSelect = document.getElementById("idPrepaga")
     prepagaSelect.addEventListener("change", () => {
         // console.log("Detecto cambio")
@@ -397,58 +445,43 @@ btnNuevo.addEventListener("click", () => {
                 let prepaga = data.find((ele)=>ele.nombre === prepagas[prepagaSelect.value-1])
                 console.log(prepaga)
                 cubrePrepaga.innerText = `Tu prepaga cubre: ${separarArrayStr(prepaga.servicios)}`
-                localStorage.setItem("prepaga",JSON.stringify(prepaga))
+                //localStorage.setItem("prepaga",JSON.stringify(prepaga))
             })
         }else{
             cubrePrepaga.innerText = "Deberás ingresar como privado"
         }
          
-    })
+    }) */
 
     let formPaciente = document.querySelector("form");
     formPaciente.addEventListener("submit", (event)=>{
         event.preventDefault();
-        console.log("Formulario Enviado");  
-       if (haySeleccion){
-            escribirConsulta(formPaciente,arrServSeleccionados,pacNuevo)
-            okConsulta = true
-        }else{
-            Swal.fire({
-                icon: 'warning',
-                title: 'Primero debes tenes un servicio seleccionado',
-            })
-            okConsulta = false
-
-        } 
+        console.log(formPaciente["nombre"].value)
+        console.log("Formulario Enviado"); 
+        ingresadoFlag = true //Levanto la bandera del registro para la consulta y las herramientas
+        //let paciente = new Paciente(formPaciente)
+        let paciente = {
+            nombre : formPaciente["nombre"].value,
+            apellido : formPaciente["apellido"].value,
+            celular : formPaciente["celular"].value,
+            dni : formPaciente["dni"].value,
+            prepaga : formPaciente["prepaga"].value,
+        }
+        localStorage.setItem(String(formPaciente["dni"].value),JSON.stringify(paciente))
+        sessionStorage.setItem("dni",String(formPaciente["dni"].value))
+        
     })
 })
 
-function escribirConsulta(formulario,servicios,pacNuevo){
+function escribirConsulta(formDispo,servicios,pacNuevo){
+    let dni = JSON.parse(sessionStorage.getItem("dni"))
+    let datosPaciente = JSON.parse(localStorage.getItem(dni))
+    console.log(datosPaciente)
+    console.log(datosPaciente)
     /* form = formulario.getValues() */
     let servInteres= servicios.map((el) =>el.servicio)
-    if (pacNuevo){
-        //Si el paciente es nuevo, tengo que levantar los datos del formulario
-        let paciente = new Paciente(formulario)
-        localStorage.setItem(String(formulario["dni"].value),JSON.stringify(paciente))
-        
-
-    }else{
-        //Si el paciente no es nuevo, ya tengo los datos guardados
-        if(!(JSON.parse(localStorage.getItem(String(formulario["dni"].value))))){
-            Swal.fire({
-                icon: 'warning',
-                title: 'El DNI ingresado no ha sido ingresado todavía',
-              })
-            
-        }else{
-            
-        }
-        
-
-    }
-    //ahora si o si tengo guardados los datos del paciente en storage
-    let datosPaciente = JSON.parse(localStorage.getItem(String(formulario["dni"].value)))
     let Nuevo= pacNuevo ? "nuevo" : "ya ingresado"
+    //Escribo mi consulta
     let consulta = `<h4>Tu consulta</h4>
     <h5>Tu datos</h5>
     <p>Nombre: ${datosPaciente.nombre}</p>
@@ -456,9 +489,10 @@ function escribirConsulta(formulario,servicios,pacNuevo){
     <p>DNI: ${datosPaciente.dni}</p>
     <p>Prepaga: ${nombresPrepagas[datosPaciente.prepaga-1]}</p>
     <p>Paciente: ${Nuevo}</p>
-    <h5>Tu consulta</h5>
-    <p>Disponibilidad: ${horarios[formulario["dispo"].value-1]}</p>
+    <h5>Servicios consultados</h5>
+    <p>Disponibilidad:${horarios[formDispo["dispo"].value-1]} </p>
     <p>Servicios de interés: ${separarArrayStr(servInteres)}</p>`
+    //horarios[formDispo["dispo"].value-1] ESTO IBA ADENTRO DE DISPO
     //Aprovecho a guardar la data del paciente
     consultaPaciente.innerHTML = consulta
     /* let paciente = new Paciente(formulario)
@@ -466,6 +500,49 @@ function escribirConsulta(formulario,servicios,pacNuevo){
     //Guardo consulta también
     localStorage.setItem("ultConsulta",JSON.stringify(consulta))
 }
+
+btnConsulta.addEventListener("click",()=>{
+    //Para poder escribir la consulta necesito: selección de servicio,paciente ingresado y disponibilidad
+    let formDispo = document.getElementById("dispo")
+    if (ingresadoFlag && haySeleccion){
+        //Si ya ingresó y hay selección entonces
+        okConsulta = true
+        //console.log(formPaciente)
+        escribirConsulta(formDispo,arrServSeleccionados,pacNuevo)
+    }else{
+        Swal.fire({
+            icon: 'warning',
+            text: 'Para poder escribir la consulta debes estar ingresado y tener servicios seleccionados',
+          })
+    }
+})
+
+//Envío consulta
+btnEnviarConsulta.addEventListener("click",( )=>{
+    if (okConsulta){
+        let timeUltConsulta = DateTime.now()
+        /* tiempoConsultaFunc(DateTime.now()) */
+        localStorage.setItem("ultConsultaTiempo", JSON.stringify(timeUltConsulta))
+        const Interval = luxon.Interval; 
+        let tiempoConsulta
+        let ahora
+        ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace 0 segundos`
+        setInterval(()=>{
+            ahora = DateTime.now()
+            tiempoConsulta = Interval.fromDateTimes(timeUltConsulta,ahora);
+            console.log(tiempoConsulta)
+            ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
+        },10000)
+    
+    }else{
+            Swal.fire({
+                icon: 'warning',
+                title: 'Primero debes ingresar tus datos',
+            })
+        }
+
+    })
+
 
 
 //Herramientas
@@ -504,6 +581,7 @@ btnimc.addEventListener("click", () => {
      
 })
 
+
 //DARKMODE
 //Tomada de la clase y modificada al principio
 let btnToggle = document.getElementById("btnToggle")
@@ -537,31 +615,7 @@ btnToggle.addEventListener("click", () => {
 //Luxon: lo voy a usar para 2 cosas - Calcular edad y definir cuando mandaste una consulta
 const DateTime = luxon.DateTime
  
-//Envío consulta
-btnEnviarConsulta.addEventListener("click",( )=>{
-    if (okConsulta){
-        let timeUltConsulta = DateTime.now()
-        /* tiempoConsultaFunc(DateTime.now()) */
-        localStorage.setItem("ultConsultaTiempo", JSON.stringify(timeUltConsulta))
-        const Interval = luxon.Interval; 
-        let tiempoConsulta
-        let ahora
-        ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace 0 segundos`
-        setInterval(()=>{
-            ahora = DateTime.now()
-            tiempoConsulta = Interval.fromDateTimes(timeUltConsulta,ahora);
-            console.log(tiempoConsulta)
-            ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
-        },10000)
-    
-    }else{
-            Swal.fire({
-                icon: 'warning',
-                title: 'Primero debes ingresar tus datos',
-            })
-        }
-
-    })
+/
     
 
 
@@ -585,14 +639,13 @@ btnEnviarConsulta.addEventListener("click",( )=>{
 
 } */
 
-class Paciente{
-    constructor(formulario,ultConsulta,time){
+function Paciente(formulario){
         this.nombre = formulario["nombre"].value;
         this.apellido = formulario["apellido"].value;
         this.celular = formulario["celular"].value;
         this.dni = formulario["dni"].value;
-        this.prepaga = formulario["prepaga"].value;
-}}
+        this.prepaga = formulario["prepaga"].value
+}
 
 //servConsulta = serviciosSelect.map((el)=>el.servicio)
 /* class Consulta(dni,disponibilidad,servSelecc){
@@ -638,10 +691,12 @@ let nuevaConsulta = []
 let pacNuevo 
 let haySeleccion
 let okConsulta = false
+let ingresadoFlag = false //bandera para asegurarme que está ingresado
 
 //Hago el caso de primera vez o no para los servicios seleccionados, dado que guardo la selección del usuario hasta que envía la consulta
 let arrServSeleccionados = []
 let servNoCubiertos = []
+let servSeleccCubierto = []
 if(localStorage.getItem("servSelecc")){
     //solo entro en el caso de que se haya guardado (quedo la accion de envio de consulta inconclusa)
     haySeleccion = true

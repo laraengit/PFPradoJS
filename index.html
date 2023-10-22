@@ -41,9 +41,38 @@
                   <button id="btnToggle" class="btn btn-dark mx-3">Modo Oscuro</button>  
                 </ul>
               </div>
+              <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Ingresar
+              </button>
             </div>
           </nav>
-        
+          
+          <!-- Modals -->
+        <div class="modal fade" id="exampleModal" tabindex="1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Ingresá con tus datos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="modalIngreso" class="modal-body">
+                    <div class="botonesTurno">
+                        <button id="btnIngresado" class="btn btn-success mx-3">Ya soy paciente</button>
+                         <button id="btnNuevo" class="btn btn-info mx-3">Soy nuevo paciente</button>
+                     </div>
+                     <div id="divInfoPaciente" class="infoPaciente">
+                    </div>
+                    <div id="divErrorIngreso"></div>
+                
+                </div>
+                <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+            </div>
+            </div>
+        </div>
+
         <div id="encabezado" class="secc gridMain">
             <h1>Consultorios BA</h1>
             <h2>Cuidando tu salud</h2>
@@ -79,16 +108,27 @@
             <h3>Pedí tu turno</h3>
             <div class="flexR">
                 <div class="seccPaciente">
-                    <div class="botonesTurno">
-                        <button id="btnIngresado" class="btn btn-success mx-3">Ya soy paciente</button>
-                        <button id="btnNuevo" class="btn btn-info mx-3">Soy nuevo paciente</button>  
+<!--                     <div class="botonesTurno">
+                       <button id="btnIngresado" class="btn btn-success mx-3">Ya soy paciente</button>
+                        <button id="btnNuevo" class="btn btn-info mx-3">Soy nuevo paciente</button>
+                    </div> -->
+                    <!-- <div id="divInfoPaciente" class="infoPaciente">
                     </div>
-                    <div id="divInfoPaciente" class="infoPaciente">
-                    </div>
-                   
+                    -->
+                    <form id= "dispo" name = "dispo" action="">
+                        <label for="">Disponibilidad:</label>
+                        <select name="dispo" id="idAgenda" required>
+                            <option value="1">Mañana</option>
+                            <option value="2">Tarde</option>
+                            <option value="3">Indistinto</option>
+                        </select>
+                        
+                    </form>
+                    <button id="btnConsulta" class="btn btn-warning mx-3">Escribir consulta</button>
                     <div id="consultaPaciente">
                         <h5>Tu consulta</h5>
                     </div>
+
     
                 </div>
                 
@@ -96,7 +136,10 @@
                     <h4>Servicios seleccionados</h4>
                     <div id="servAgregados"></div>
                     <div id = "precioServ"></div>
+                    <div id="cubrePrepaga"></div>
                     <div id = "botonSelecc"></div>
+                    <div id = "botonCubre"></div>
+                    
     
                 </div>
                 
@@ -170,6 +213,9 @@
         </footer>
 
       </div>
+
+      
+     
 
       
     
