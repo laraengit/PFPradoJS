@@ -94,8 +94,8 @@
   text-align: left;
 }
 
-#botonSelecc, #botonCubre {
-  margin: 5%;
+#botonSelecc, #botonUltConsulta {
+  margin: 2%;
 }
 
 #dispo :nth-child(n) {

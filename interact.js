@@ -1,15 +1,4 @@
-//Funciones
-
-function menu (nombre, seccion,opciones, cantOpciones){
-    //No usar 0 (no toma el caso en el switch), siempre ingresar las opciones de 1 hasta n = cantOciones 
-    let elecc
-    do {
-        elecc= Number(prompt(`${seccion}\n${nombre}, presioná en tu teclado el número correspondiente a lo que querés hacer: \n${opciones} `))
-        console.log(`El usuario ingresó ${elecc}`)
-    }while(elecc>cantOpciones || elecc<=0 ||  !Number(elecc))
-    return elecc
-}
-
+//Funciones indep del DOM
 
 function imc(peso,altura){
     console.log(peso)
@@ -44,8 +33,6 @@ function presion(sist,diast){
     }
     return resultado
 }
-
-
 
 
 function consultaServicios(servicios,especialidades,especBusq){
@@ -92,12 +79,10 @@ let botonCubre = document.getElementById("botonCubre")
 let precioServ = document.getElementById("precioServ")
 let divSolTurno = document.getElementById("divSolTurno")
 let ultConsulta = document.getElementById("ultConsulta")
+let ultConsultaTiempo = document.getElementById("ultConsultaTiempo")
+let btnUltConsulta = document.getElementById("btnUltConsulta")
 let btnEnviarConsulta = document.getElementById("btnEnviarConsulta")
 let btnConsulta = document.getElementById("btnConsulta")
-
-
-
-
 
 //Función DOM
 function mostrarCatalogoDOM(array){
@@ -181,7 +166,7 @@ function mostrarCatalogoDOM(array){
                 }else{
                     Swal.fire({
                         icon: 'warning',
-                        text: 'Antes de cargar tu sellección, debes ingresar con tus datos',
+                        text: 'Antes de cargar tu selección, debes ingresar con tus datos',
                       })
                 }
             
@@ -267,64 +252,14 @@ function mostrarServSelecc(array){
                         servNoCubiertos = []
                         servAgregado.innerHTML = "Todavía no seleccionaste servicios"
                         precioServ.innerHTML = ""
+                        cubrePrepaga = ""
                         botonSelecc.innerHTML = ""
                         botonCubre.innerHTML = ""
 
                     
                     })
 
-
-
-
-                    
                 })//fin then del fetch
-
-        
-            
-        
-
-        /* botonCubre.addEventListener("click",()=>{
-            let cubrePrepaga = document.getElementById("cubrePrepaga")
-            if (ingresadoFlag){
-                let dni = JSON.parse(sessionStorage.getItem("dni"))
-                let datosPaciente = JSON.parse(localStorage.getItem(dni))
-                servCubiertos = prepagaGuardada.servicios
-                let prep = parseInt(datosPaciente.prepaga)
-                console.log(prep)
-
-                if (prep != 5){
-                    //Metodo fetch para verificar que cubre la prepaga del paciente
-                    fetch("prepagas.json")
-                    .then((res)=>res.json())
-                    .then((data)=>{
-                        console.log(data)
-                        let prepagas = data.map((el) =>el.nombre)
-                        console.log(prepagas)
-                        let prepaga = data.find((ele)=>ele.nombre === prepagas[prep-1])
-                        console.log(prepaga)
-                        
-                        //localStorage.setItem("prepaga",JSON.stringify(prepaga))
-                    })
-
-                    //me robe de arriba
-                    let servCubiertos = prepagaGuardada.servicios
-                    let cubre = servCubiertos.some((el)=>el===serv.servicio)
-                    !cubre && servNoCubiertos.push(serv)
-                    let totalNoCubierto = servNoCubiertos.reduce((acc,elem) => acc + elem.precio, 0)
-                    let totalCubierto = servSeleccCubierto.reduce((acc,elem) => acc + elem.precio, 0)
-                    cubrePrepaga.innerText = `Tu prepaga cubre: ${separarArrayStr(prepaga.servicios)}. `
-                }else{
-                    cubrePrepaga.innerText = "Deberás ingresar como privado"
-                }
-
-
-            }else{
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Primero debes ingresar con tu dni',
-                  })
-            }
-        }) */
     }else{
         servAgregado.innerHTML = "Todavía no seleccionaste servicios"
     }
@@ -379,6 +314,19 @@ btnIngresado.addEventListener("click", () => {
             sessionStorage.setItem("dni",String(formPaciente["dni"].value))
             
         }
+        //Actualizo mis valores de mi selección anterior sin completar
+        if(localStorage.getItem("servSelecc")){
+            //solo entro en el caso de que se haya guardado (quedo la accion de envio de consulta inconclusa)
+            haySeleccion = true
+            if(ingresadoFlag){
+                for(let serv of JSON.parse(localStorage.getItem("servSelecc"))){
+                    let servClase = new Servicio (serv.servicio, serv.precio, serv.descripcion, serv.especialidad, serv.imagen)
+                    arrServSeleccionados.push(servClase)
+                }
+            }
+            mostrarServSelecc(arrServSeleccionados)
+        }
+        
         
     })
     /* let cubrePrepaga = document.getElementById("cubrePrepaga")
@@ -470,6 +418,7 @@ btnNuevo.addEventListener("click", () => {
         localStorage.setItem(String(formPaciente["dni"].value),JSON.stringify(paciente))
         sessionStorage.setItem("dni",String(formPaciente["dni"].value))
         
+        
     })
 })
 
@@ -498,7 +447,7 @@ function escribirConsulta(formDispo,servicios,pacNuevo){
     /* let paciente = new Paciente(formulario)
     localStorage.setItem(String(formulario["dni"].value),JSON.stringify(paciente)) */
     //Guardo consulta también
-    localStorage.setItem("ultConsulta",JSON.stringify(consulta))
+    localStorage.setItem("ultConsulta",JSON.stringify(`Ingresaste con DNI: ${datosPaciente.dni}, marcaste que tenías disponibilidad en: ${horarios[formDispo["dispo"].value-1]} y tus servicios de interés fueron  ${separarArrayStr(servInteres)}`))
 }
 
 btnConsulta.addEventListener("click",()=>{
@@ -516,31 +465,60 @@ btnConsulta.addEventListener("click",()=>{
           })
     }
 })
-
+const DateTime = luxon.DateTime
 //Envío consulta
 btnEnviarConsulta.addEventListener("click",( )=>{
     if (okConsulta){
+        //Borrro la consulta y la selección => Finaliza la accion
+        localStorage.removeItem('servSelecc');
+        haySeleccion = false
+        arrServSeleccionados = []
+        servNoCubiertos = []
+        servAgregado.innerHTML = "Todavía no seleccionaste servicios"
+        precioServ.innerHTML = ""
+        cubrePrepaga = ""
+        botonSelecc.innerHTML = ""
+        consultaPaciente.innerHTML = `<h4>Tu consulta</h4>`
+
+        //Trackeo el tiempo desde la ult consulta
         let timeUltConsulta = DateTime.now()
         /* tiempoConsultaFunc(DateTime.now()) */
         localStorage.setItem("ultConsultaTiempo", JSON.stringify(timeUltConsulta))
-        const Interval = luxon.Interval; 
-        let tiempoConsulta
-        let ahora
-        ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace 0 segundos`
-        setInterval(()=>{
-            ahora = DateTime.now()
-            tiempoConsulta = Interval.fromDateTimes(timeUltConsulta,ahora);
-            console.log(tiempoConsulta)
-            ultConsulta.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
-        },10000)
+        okConsulta = false
     
     }else{
             Swal.fire({
                 icon: 'warning',
-                title: 'Primero debes ingresar tus datos',
+                text: 'Primero debes escribir la consulta',
             })
         }
 
+    })
+
+    btnUltConsulta.addEventListener("click",()=>{
+        if(JSON.parse(localStorage.getItem("ultConsulta"))){
+            const Interval = luxon.Interval;
+            let tiempoConsulta
+            let timeUltConsulta = JSON.parse(localStorage.getItem("ultConsultaTiempo"))
+            timeUltConsulta = DateTime.fromISO(timeUltConsulta)
+            console.log(timeUltConsulta)
+            let ahora = DateTime.now()
+            tiempoConsulta = Interval.fromDateTimes(timeUltConsulta,ahora);
+            console.log(tiempoConsulta)
+            ultConsultaTiempo.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
+            ultConsulta.innerHTML = JSON.parse(localStorage.getItem("ultConsulta"))
+            setInterval(()=>{
+                console.log(DateTime.now)
+                let ahora = DateTime.now()
+                tiempoConsulta = Interval.fromDateTimes(timeUltConsulta,ahora);
+                console.log(tiempoConsulta)
+                ultConsultaTiempo.innerHTML = `Tu última consulta para pedir turno fue hace ${tiempoConsulta.length("seconds")} segundos`
+            },10000)
+        }else{
+            ultConsulta.innerHTML = `No hay registradas consultas`
+        }
+        
+        
     })
 
 
@@ -612,8 +590,7 @@ btnToggle.addEventListener("click", () => {
         localStorage.setItem("modoOscuro", false)
     }
 })
-//Luxon: lo voy a usar para 2 cosas - Calcular edad y definir cuando mandaste una consulta
-const DateTime = luxon.DateTime
+
  
 /
     
@@ -700,14 +677,20 @@ let servSeleccCubierto = []
 if(localStorage.getItem("servSelecc")){
     //solo entro en el caso de que se haya guardado (quedo la accion de envio de consulta inconclusa)
     haySeleccion = true
-    for(let serv of JSON.parse(localStorage.getItem("servSelecc"))){
-        let servClase = new Servicio (serv.servicio, serv.precio, serv.descripcion, serv.especialidad, serv.imagen)
-        arrServSeleccionados.push(servClase)
+    if(ingresadoFlag){
+        for(let serv of JSON.parse(localStorage.getItem("servSelecc"))){
+            let servClase = new Servicio (serv.servicio, serv.precio, serv.descripcion, serv.especialidad, serv.imagen)
+            arrServSeleccionados.push(servClase)
+        }
     }
+    
 
 }
 
-//
+//ultima consulta - reseteo
+ultConsulta.innerHTML = ""
+ultConsultaTiempo.innerHTML = ""
+
 
 //Interacción semilla
 mostrarCatalogoDOM(serviciosDisponibles)
@@ -715,3 +698,4 @@ mostrarServSelecc(arrServSeleccionados)
 /* if(localStorage.getItem("ultConsultaTiempo")){
     tiempoConsultaFunc(JSON.parse(localStorage.getItem("ultConsultaTiempo")))
 } */
+
